@@ -122,6 +122,32 @@ class Plotter {
             this.penTo(x, "Z");
         }
     }
+    moveToLine(x, y) {
+        if (typeof y === 'number') {
+            this.penToLine({ x: x, y: y }, "U");
+        }
+        else {
+            this.penToLine(x, "U");
+        }
+    }
+    lineToLine(x, y) {
+        if (typeof y === 'number') {
+            this.penToLine({ x: x, y: y }, "D");
+        }
+        else {
+            this.penToLine(x, "D");
+        }
+    }
+    finishToLine(x, y) {
+        if (typeof y === 'number') {
+            this.penToLine({ x: x, y: y }, "D");
+            this.penToLine({ x: x, y: y }, "Z");
+        }
+        else {
+            this.penToLine(x, "D");
+            this.penToLine(x, "Z");
+        }
+    }
     finishPen() {
         this.penTo({ x: 0, y: 0 }, "Z");
     }
@@ -262,6 +288,9 @@ class CanvasPlotter extends Plotter {
             }
         }
         this.penState = s;
+    }
+    penToLine(p, s) {
+        // NO need to implement this method
     }
     setColor(c) {
         super.setColor(c);
@@ -442,6 +471,39 @@ class SVGPlotter extends Plotter {
         }
         this.penState = s;
     }
+    penToLine(p, s) {
+        const x = this.xmlTag;
+        p = this.transform.transformCoordinate(p);
+        const lineWidth = this.transform.transformScalar(this.lineWidth);
+        if (s === "Z") {
+            if (this.penState !== "Z") {
+                if (this.fill === kicad_common_1.Fill.NO_FILL) {
+                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
+                }
+                else {
+                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
+                }
+            }
+            else {
+                throw "invalid pen state Z -> Z";
+            }
+            this.penState = "Z";
+            return;
+        }
+        // s is U | D
+        if (this.penState === "Z") {
+            this.output += this.xmlTag `<line x1="${p.x}" y1=${p.y}\n`;
+        }
+        else {
+            if (s === "U") {
+                this.output += this.xmlTag `x2="${p.x}" y2="${p.y}"\n`;
+            }
+            else {
+                this.output += this.xmlTag `x2="${p.x}" y2="${p.y}"\n`;
+            }
+        }
+        this.penState = s;
+    }
     setCurrentLineWidth(w) {
         this.lineWidth = w;
     }
@@ -508,9 +570,9 @@ class SVGPlotter extends Plotter {
         return String(s).replace(/[<>&]/g, (_) => map[_]);
     }
 }
+exports.SVGPlotter = SVGPlotter;
 SVGPlotter.font = {
     family: '"Lucida Console", Monaco, monospace',
     widthRatio: 0.60009765625,
 };
-exports.SVGPlotter = SVGPlotter;
 //# sourceMappingURL=kicad_plotter.js.map

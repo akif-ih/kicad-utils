@@ -253,8 +253,9 @@ class PCBPlotter {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
             this.plotter.setFill(kicad_common_1.Fill.NO_FILL);
             this.plotter.setCurrentLineWidth(lineWidth);
-            this.plotter.moveTo(start);
-            this.plotter.finishTo(end);
+            this.plotter.moveToLine(start);
+            this.plotter.lineToLine(end);
+            this.plotter.finishPen();
         }
         else {
             this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);

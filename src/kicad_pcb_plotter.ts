@@ -342,8 +342,9 @@ export class PCBPlotter {
 		if (fill === Fill.FILLED_SHAPE) {
 			this.plotter.setFill(Fill.NO_FILL);
 			this.plotter.setCurrentLineWidth(lineWidth);
-			this.plotter.moveTo(start);
-			this.plotter.finishTo(end);
+			this.plotter.moveToLine(start);
+			this.plotter.lineToLine(end);
+			this.plotter.finishPen();
 		} else {
 			this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
 			this.segmentAsOval(start, end, lineWidth, fill);

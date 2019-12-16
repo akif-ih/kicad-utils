@@ -82,6 +82,7 @@ export abstract class Plotter {
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
 	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
 	abstract penTo(p: Point, s: "U"|"D"|"Z"): void;
+	abstract penToLine(p: Point, s: "U"|"D"|"Z"): void;
 	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
 
 	abstract setCurrentLineWidth(w: number): void;
@@ -203,6 +204,40 @@ export abstract class Plotter {
 			this.penTo(x, "Z");
 		}
 	}
+
+
+	moveToLine(p: Point): void;
+	moveToLine(x: number, y: number): void;
+	moveToLine(x: any, y?: number): void {
+		if (typeof y === 'number') {
+			this.penToLine({x: x, y: y}, "U");
+		} else {
+			this.penToLine(x, "U");
+		}
+	}
+
+	lineToLine(p: Point): void;
+	lineToLine(x: number, y: number): void;
+	lineToLine(x: any, y?: number): void {
+		if (typeof y === 'number') {
+			this.penToLine({x: x, y: y}, "D");
+		} else {
+			this.penToLine(x, "D");
+		}
+	}
+
+	finishToLine(p: Point): void;
+	finishToLine(x: number, y: number): void;
+	finishToLine(x: any, y?: number): void {
+		if (typeof y === 'number') {
+			this.penToLine({x: x, y: y}, "D");
+			this.penToLine({x: x, y: y}, "Z");
+		} else {
+			this.penToLine(x, "D");
+			this.penToLine(x, "Z");
+		}
+	}
+
 
 	finishPen(): void {
 		this.penTo({x: 0, y: 0}, "Z");
@@ -361,7 +396,11 @@ export class CanvasPlotter extends Plotter {
 		}
 
 		this.penState = s;
-	} 
+	}
+
+	penToLine(p: Point, s: "U"|"D"|"Z"): void {
+		// NO need to implement this method
+	}
 
 	setColor(c: Color): void {
 		super.setColor(c);
@@ -573,7 +612,40 @@ export class SVGPlotter extends Plotter {
 		}
 
 		this.penState = s;
-	} 
+	}
+
+	penToLine(p: Point, s: "U"|"D"|"Z"): void {
+		const x = this.xmlTag;
+		p = this.transform.transformCoordinate(p);
+		const lineWidth = this.transform.transformScalar(this.lineWidth);
+		if (s === "Z") {
+			if (this.penState !== "Z") {
+				if (this.fill === Fill.NO_FILL) {
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
+				} else {
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
+				}
+			} else {
+				throw "invalid pen state Z -> Z";
+			}
+			this.penState = "Z";
+			return;
+		}
+
+		// s is U | D
+
+		if (this.penState === "Z") {
+			this.output += this.xmlTag `<line x1="${p.x}" y1=${p.y}\n`;
+		} else {
+			if (s === "U") {
+				this.output += this.xmlTag `x2="${p.x}" y2="${p.y}"\n`;
+			} else {
+				this.output += this.xmlTag `x2="${p.x}" y2="${p.y}"\n`;
+			}
+		}
+
+		this.penState = s;
+	}
 
 	setCurrentLineWidth(w: number): void {
 		this.lineWidth = w;
