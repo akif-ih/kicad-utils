@@ -531,18 +531,18 @@ class SVGPlotter extends Plotter {
     startPlot() {
         const width = this.pageInfo.width;
         const height = this.pageInfo.height;
-        this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
-			width="${this.transform.transformScalar(width)}"
-			height="${this.transform.transformScalar(height)}"
-			viewBox="0 0 ${width} ${height}"
-			xmlns="http://www.w3.org/2000/svg"
-			xmlns:xlink="http://www.w3.org/1999/xlink"
-			version="1.1">`;
+        // this.output = this.xmlTag `<svg preserveAspectRatio="xMinYMin"
+        // 	width="${this.transform.transformScalar(width)}"
+        // 	height="${this.transform.transformScalar(height)}"
+        // 	viewBox="0 0 ${width} ${height}"
+        // 	xmlns="http://www.w3.org/2000/svg"
+        // 	xmlns:xlink="http://www.w3.org/1999/xlink"
+        // 	version="1.1">`;
         this.output += this.xmlTag `<g stroke-linejoin="round" stroke-linecap="round">`;
     }
     endPlot() {
         this.output += this.xmlTag `</g>`;
-        this.output += `</svg>`;
+        //this.output += `</svg>`;
     }
     xmlTag(literals, ...placeholders) {
         let result = "";
