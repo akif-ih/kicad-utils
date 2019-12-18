@@ -744,7 +744,7 @@ export class PCBPlotter {
 
 	plotDrillMarks(board: Board) {
 		if (this.getPlotMode() === Fill.FILLED_SHAPE) {
-			this.plotter.setColor(Color.WHITE);
+			this.plotter.setColor(Color.BLACK);
 		}
 
 		for (let via of board.vias) {

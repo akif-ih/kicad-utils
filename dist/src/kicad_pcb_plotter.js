@@ -603,7 +603,7 @@ class PCBPlotter {
     }
     plotDrillMarks(board) {
         if (this.getPlotMode() === kicad_common_1.Fill.FILLED_SHAPE) {
-            this.plotter.setColor(kicad_common_1.Color.WHITE);
+            this.plotter.setColor(kicad_common_1.Color.BLACK);
         }
         for (let via of board.vias) {
             this.plotOneDrillMark(kicad_pcb_1.PadDrillShape.CIRCLE, via.start, new kicad_common_1.Size(via.drill, 0), new kicad_common_1.Size(via.width, 0), 0, 0);
