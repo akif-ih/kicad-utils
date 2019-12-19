@@ -349,6 +349,8 @@ class PCBPlotter {
     }
     plotEdgeModule(edge, mod) {
         // console.log('plotEdgeModule', edge);
+        if (!edge.start || !edge.end)
+            return;
         this.plotter.setColor(this.getColor(edge.layer));
         const lineWidth = edge.lineWidth;
         const shape = edge.shape;
@@ -447,8 +449,7 @@ class PCBPlotter {
             this.plotFilledAreas(board, zone);
         }
         for (let mod of board.modules) {
-            if (!this.layerMask.has(mod.layer))
-                continue;
+            // if (!this.layerMask.has(mod.layer)) continue;
             for (let edge of mod.graphics) {
                 if (!this.layerMask.has(edge.layer))
                     continue;
