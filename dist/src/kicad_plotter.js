@@ -492,7 +492,7 @@ class SVGPlotter extends Plotter {
         }
         // s is U | D
         if (this.penState === "Z") {
-            this.output += this.xmlTag `<line x1="${p.x}" y1=${p.y}\n`;
+            this.output += this.xmlTag `<line x1="${p.x}" y1="${p.y}"\n`;
         }
         else {
             if (s === "U") {
