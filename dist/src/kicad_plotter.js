@@ -208,6 +208,9 @@ class CanvasPlotter extends Plotter {
             this.ctx.stroke();
         }
     }
+    curve(start, end, C1, C2, lineWidth) {
+        // Will implement this later.
+    }
     /*
     text(
         p: Point,
@@ -364,6 +367,21 @@ class SVGPlotter extends Plotter {
         const lineWidth = this.transform.transformScalar(this.lineWidth);
         const x = this.xmlTag;
         this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
+        if (this.fill === kicad_common_1.Fill.NO_FILL) {
+            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
+        }
+        else {
+            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
+        }
+    }
+    curve(start, end, C1, C2, lineWidth) {
+        start = this.transform.transformCoordinate(start);
+        end = this.transform.transformCoordinate(end);
+        C1 = this.transform.transformCoordinate(C1);
+        C2 = this.transform.transformCoordinate(C2);
+        lineWidth = this.transform.transformScalar(lineWidth);
+        const x = this.xmlTag;
+        this.output += this.xmlTag `<path d="M${start.x},${start.y} C${C1.x},${C1.y} ${C2.x},${C2.y} ${end.x},${end.y}"`;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
             this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
         }

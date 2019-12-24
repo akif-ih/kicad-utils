@@ -34,40 +34,38 @@
  */
 
 import {
-	Point,
-	Fill,
-	Size,
-	RotatePoint,
-	RotatePointWithCenter,
 	AddAngles,
 	ArcTangente,
-	EuclideanNorm,
-	GetLineLength,
-	Color,
 	Clamp,
+	Color,
+	EuclideanNorm,
+	Fill,
+	GetLineLength,
+	Point,
+	RotatePoint,
+	RotatePointWithCenter,
+	Size,
 } from "./kicad_common";
 
 import {
-	Module,
-	Pad,
 	Board,
-	PadShape,
-	EdgeModule,
-	Shape,
-	LSET,
-	PadDrillShape,
-	Text,
 	Dimension,
 	DrawSegment,
+	EdgeModule,
+	IsCopperLayer,
+	LSET,
+	Module,
+	Pad,
+	PadDrillShape,
+	PadShape,
 	PCB_LAYER_ID,
+	Shape,
+	Text,
 	TextModule,
 	Zone,
-	IsCopperLayer,
 } from "./kicad_pcb";
 
-import {
-	Plotter,
-} from "./kicad_plotter";
+import {Plotter,} from "./kicad_plotter";
 
 const DEFAULT_LINE_WIDTH = 1;
 const DEFAULT_LAYER_COLORS = [
@@ -368,11 +366,11 @@ export class PCBPlotter {
 			this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
 			const offsetp1 = new Point(
 				p1.x - (lineWidth - DEFAULT_LINE_WIDTH) / 2,
-				p1.y - (lineWidth - DEFAULT_LINE_WIDTH) / 2 
+				p1.y - (lineWidth - DEFAULT_LINE_WIDTH) / 2
 			);
 			const offsetp2 = new Point(
 				p2.x + (lineWidth - DEFAULT_LINE_WIDTH) / 2,
-				p2.y + (lineWidth - DEFAULT_LINE_WIDTH) / 2 
+				p2.y + (lineWidth - DEFAULT_LINE_WIDTH) / 2
 			);
 			this.plotter.rect( offsetp1, offsetp2, Fill.NO_FILL, DEFAULT_LINE_WIDTH );
 			offsetp1.x += (lineWidth - DEFAULT_LINE_WIDTH);
@@ -393,6 +391,11 @@ export class PCBPlotter {
 		}
 	}
 
+	thickCurve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number) {
+		lineWidth = lineWidth ? lineWidth : DEFAULT_LINE_WIDTH
+		this.plotter.setCurrentLineWidth(lineWidth)
+		this.plotter.curve(start, end, C1, C2, lineWidth)
+	}
 
 	plotModule(mod: Module) {
 		for (let edge of mod.graphics) {
@@ -504,7 +507,15 @@ export class PCBPlotter {
 				corners.push(p);
 			}
 			this.plotter.polyline(corners, Fill.FILLED_SHAPE, lineWidth);
-		} else {
+		} else
+		if(shape === Shape.CURVE) {
+			// this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth)
+		}else
+		if(shape === Shape.LAST){
+			// Will implement this later.
+		}
+
+		else {
 			throw "unexpected shape " + shape;
 		}
 	}
@@ -786,7 +797,7 @@ export class PCBPlotter {
 
 		for (let text of board.texts) {
 			this.plotBoardText(board, text);
-		} 
+		}
 
 		for (let target of board.targets) {
 			// TODO

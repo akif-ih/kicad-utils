@@ -81,6 +81,7 @@ export abstract class Plotter {
 
 	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
 	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
+	abstract curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number): void;
 	abstract penTo(p: Point, s: "U"|"D"|"Z"): void;
 	abstract penToLine(p: Point, s: "U"|"D"|"Z"): void;
 	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
@@ -315,6 +316,10 @@ export class CanvasPlotter extends Plotter {
 		}
 	}
 
+	curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number): void {
+		// Will implement this later.
+	}
+
 	/*
 	text(
 		p: Point,
@@ -496,6 +501,23 @@ export class SVGPlotter extends Plotter {
 		if (this.fill === Fill.NO_FILL) {
 			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
 		} else {
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
+		}
+	}
+
+	curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number){
+		start = this.transform.transformCoordinate(start)
+		end = this.transform.transformCoordinate(end)
+		C1 = this.transform.transformCoordinate(C1)
+		C2 = this.transform.transformCoordinate(C2)
+
+		lineWidth = this.transform.transformScalar(lineWidth);
+		const x = this.xmlTag;
+		this.output += this.xmlTag `<path d="M${start.x},${start.y} C${C1.x},${C1.y} ${C2.x},${C2.y} ${end.x},${end.y}"`;
+		if (this.fill === Fill.NO_FILL) {
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" />\n`;
+		}
+		else {
 			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" />\n`;
 		}
 	}

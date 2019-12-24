@@ -298,6 +298,11 @@ class PCBPlotter {
             this.plotter.circle(pos, diameter + lineWidth - DEFAULT_LINE_WIDTH, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
         }
     }
+    thickCurve(start, end, C1, C2, lineWidth) {
+        lineWidth = lineWidth ? lineWidth : DEFAULT_LINE_WIDTH;
+        this.plotter.setCurrentLineWidth(lineWidth);
+        this.plotter.curve(start, end, C1, C2, lineWidth);
+    }
     plotModule(mod) {
         for (let edge of mod.graphics) {
             if (edge instanceof kicad_pcb_1.EdgeModule) {
@@ -390,6 +395,12 @@ class PCBPlotter {
                 corners.push(p);
             }
             this.plotter.polyline(corners, kicad_common_1.Fill.FILLED_SHAPE, lineWidth);
+        }
+        else if (shape === kicad_pcb_1.Shape.CURVE) {
+            // this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth)
+        }
+        else if (shape === kicad_pcb_1.Shape.LAST) {
+            // Will implement this later.
         }
         else {
             throw "unexpected shape " + shape;
