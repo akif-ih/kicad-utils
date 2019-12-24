@@ -471,12 +471,24 @@ export class PCBPlotter {
 		const shape = edge.shape;
 		let pos = Point.from(edge.start);
 		let end = Point.from(edge.end);
+        let C1 = Point.from({ x: 0, y: 0 })
+        let C2 = Point.from({ x: 0, y: 0 })
+        if (shape === Shape.CURVE) {
+            C1 = Point.from(edge.bezierC1);
+            C2 = Point.from(edge.bezierC2);
+        }
 		if (mod) {
 			const angle = mod.orientation;
 			RotatePoint(pos, angle);
 			RotatePoint(end, angle);
 			pos = Point.add(pos, mod.pos);
 			end = Point.add(end, mod.pos);
+            if (shape === Shape.CURVE) {
+                RotatePoint(C1, angle);
+                RotatePoint(C2, angle);
+                C1 = Point.add(C1, mod.pos);
+                C2 = Point.add(C2, mod.pos);
+            }
 		}
 
 		if (shape === Shape.SEGMENT) {
@@ -508,7 +520,7 @@ export class PCBPlotter {
 			this.plotter.polyline(corners, Fill.FILLED_SHAPE, lineWidth);
 		} else
 		if(shape === Shape.CURVE) {
-			// this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth)
+			this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth)
 		}else
 		if(shape === Shape.LAST){
 			// Will implement this later.

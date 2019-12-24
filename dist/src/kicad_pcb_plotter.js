@@ -360,12 +360,24 @@ class PCBPlotter {
         const shape = edge.shape;
         let pos = kicad_common_1.Point.from(edge.start);
         let end = kicad_common_1.Point.from(edge.end);
+        let C1 = kicad_common_1.Point.from({ x: 0, y: 0 });
+        let C2 = kicad_common_1.Point.from({ x: 0, y: 0 });
+        if (shape === kicad_pcb_1.Shape.CURVE) {
+            C1 = kicad_common_1.Point.from(edge.bezierC1);
+            C2 = kicad_common_1.Point.from(edge.bezierC2);
+        }
         if (mod) {
             const angle = mod.orientation;
             kicad_common_1.RotatePoint(pos, angle);
             kicad_common_1.RotatePoint(end, angle);
             pos = kicad_common_1.Point.add(pos, mod.pos);
             end = kicad_common_1.Point.add(end, mod.pos);
+            if (shape === kicad_pcb_1.Shape.CURVE) {
+                kicad_common_1.RotatePoint(C1, angle);
+                kicad_common_1.RotatePoint(C2, angle);
+                C1 = kicad_common_1.Point.add(C1, mod.pos);
+                C2 = kicad_common_1.Point.add(C2, mod.pos);
+            }
         }
         if (shape === kicad_pcb_1.Shape.SEGMENT) {
             this.thickSegment(pos, end, lineWidth, this.getPlotMode());
@@ -396,7 +408,7 @@ class PCBPlotter {
             this.plotter.polyline(corners, kicad_common_1.Fill.FILLED_SHAPE, lineWidth);
         }
         else if (shape === kicad_pcb_1.Shape.CURVE) {
-            // this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth)
+            this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth);
         }
         else if (shape === kicad_pcb_1.Shape.LAST) {
             // Will implement this later.
