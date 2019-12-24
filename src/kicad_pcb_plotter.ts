@@ -520,7 +520,7 @@ export class PCBPlotter {
 			this.plotter.polyline(corners, Fill.FILLED_SHAPE, lineWidth);
 		} else
 		if(shape === Shape.CURVE) {
-			this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth)
+			this.thickCurve(pos, end, C1, C2, edge.lineWidth)
 		}else
 		if(shape === Shape.LAST){
 			// Will implement this later.

@@ -408,7 +408,7 @@ class PCBPlotter {
             this.plotter.polyline(corners, kicad_common_1.Fill.FILLED_SHAPE, lineWidth);
         }
         else if (shape === kicad_pcb_1.Shape.CURVE) {
-            this.thickCurve(edge.start, edge.end, edge.bezierC1, edge.bezierC2, edge.lineWidth);
+            this.thickCurve(pos, end, C1, C2, edge.lineWidth);
         }
         else if (shape === kicad_pcb_1.Shape.LAST) {
             // Will implement this later.
