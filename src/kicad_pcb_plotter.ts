@@ -92,15 +92,77 @@ const DEFAULT_LAYER_COLORS = [
 	Color.DARKGRAY
 ];
 
+const LAYER_COLORS_DIFFING = [
+	0,new Color(33, 33, 33),
+	1,new Color(66, 66, 66),
+	2,new Color(54, 54, 54),
+	3,new Color(89, 89, 89),
+	4,new Color(47, 47, 47),
+	5,new Color(79, 77, 77),
+	6,new Color(105, 105, 105),
+	7,new Color(87, 87, 87),
+	8,new Color(71, 71, 71),
+	9, new Color(63, 63, 63),
+	10,new Color(39, 39, 39),
+	11, new Color(74, 74, 74),
+	12, new Color(81, 81, 81),
+	13, new Color(199, 199, 199),
+	14, new Color(207, 198, 198),
+	15, new Color(222, 222, 222),
+	16,new Color(171, 164, 164),
+	17, new Color(122, 118, 118),
+	18, new Color(74, 71, 71),
+	19, new Color(99, 96, 96),
+	20, new Color(195, 195, 195),
+	21, new Color(223, 223, 223),
+	22, new Color(231, 231, 231),
+	23, new Color(214, 214, 214),
+	24, new Color(225, 225, 225),
+	25, new Color(202, 202, 202),
+	26, new Color(233, 233, 233),
+	27, new Color(194, 194, 194),
+	28, new Color(223, 223, 223),
+	29, new Color(199, 199, 199),
+	30, new Color(212, 212, 212),
+	31,new Color(79, 79, 79),
+	32, new Color(176, 176, 176),
+	33, new Color(156, 156, 156),
+	34, new Color(97, 97, 97),
+	35, new Color(82, 82, 82),
+	36, new Color(138, 138, 138),
+	37, new Color(122, 122, 122),
+	38, new Color(59, 59, 59),
+	39, new Color(41, 41, 41),
+	40, new Color(112, 112, 112),
+	41, new Color(161, 161, 161),
+	42, new Color(148, 148, 148),
+	43, new Color(166, 166, 166),
+	44, new Color(0, 0, 0),
+	45, new Color(191, 191, 191),
+	46,  new Color(128, 128, 128),
+	47, new Color(112, 112, 112),
+	48,new Color(177, 177, 177),
+	49, new Color(196, 196, 196)
+];
+
 // pcbnew/plot_board_layers.cpp
 // pcbnew/plot_brditems_plotter.cpp 
 export class PCBPlotter {
 	layerMask: LSET;
 	plotOpt: PCBPlotOptions;
+	layerColors: Map<number, Color>
 
-	constructor(public plotter: Plotter) {
+	constructor(public plotter: Plotter, plotOpts = new PCBPlotOptions) {
 		this.layerMask = new LSET(PCB_LAYER_ID.F_Cu, PCB_LAYER_ID.B_Cu);
-		this.plotOpt   = new PCBPlotOptions();
+		this.plotOpt   = plotOpts;
+		this.layerColors = new Map<number, Color>();
+		for ( let i = 0; i < LAYER_COLORS_DIFFING.length; i++) {
+			let layerId = <number>LAYER_COLORS_DIFFING[i];
+			let color = <Color><any>(LAYER_COLORS_DIFFING[++i]);
+
+			this.layerColors.set(layerId, color)
+		}
+		console.log("test")
 	}
 
 	flashPadCircle(pos: Point, dia: number, fill: Fill) {
@@ -560,10 +622,21 @@ export class PCBPlotter {
 
 				let color = Color.BLACK;
 				if (pad.layers.has(PCB_LAYER_ID.B_Cu)) {
-					color = Color.GREEN;
+
+					if (this.plotOpt.diffing && this.layerColors.get(PCB_LAYER_ID.B_Cu)) {
+						color = <Color>this.layerColors.get(PCB_LAYER_ID.B_Cu)
+					}
+					else
+						color = Color.GREEN;
+
 				}
-				if (pad.layers.has(PCB_LAYER_ID.F_Cu)) {
-					color = color.mix(Color.RED);
+				if (this.plotOpt.diffing && pad.layers.has(PCB_LAYER_ID.F_Cu)) {
+					if (this.layerColors.get(PCB_LAYER_ID.F_Cu)) {
+						color = <Color>this.layerColors.get(PCB_LAYER_ID.F_Cu)
+					}
+					else
+						color = color.mix(Color.RED);
+
 				}
 
 				this.plotPad(board, pad, color, this.getPlotMode());
@@ -619,7 +692,7 @@ export class PCBPlotter {
 	plotSolderMaskLayer(board: Board, minThickness: number) {
 	}
 
-	plotBoardLayers(board: Board, layerMask: LSET) {
+	plotBoardLayers(board: Board, layerMask: LSET, color?: Color) {
 		this.layerMask = layerMask;
 		this.plotStandardLayer(board);
 		this.plotSilkScreen(board);
@@ -892,11 +965,22 @@ export class PCBPlotter {
 	}
 
 	getColor(layer: number) {
-		const color = DEFAULT_LAYER_COLORS[layer] || Color.WHITE;
-		if (color.is(Color.WHITE)) {
-			return Color.LIGHTGRAY;
-		} else {
-			return color;
+		if(this.plotOpt.diffing) {
+			if (this.layerColors.get(layer)) {
+				let color = <Color>this.layerColors.get(layer)
+				return color
+			} else {
+				const color = Color.LIGHTGRAY
+				return color
+			}
+		}
+		else {
+			const color = DEFAULT_LAYER_COLORS[layer] || Color.WHITE;
+			if (color.is(Color.WHITE)) {
+				return Color.LIGHTGRAY;
+			} else {
+				return color;
+			}
 		}
 	}
 
@@ -912,6 +996,12 @@ export enum DrillMarksType {
 }
 
 export class PCBPlotOptions {
-	drillMarks: DrillMarksType = DrillMarksType.SMALL_DRILL_SHAPE;
-	skipNPTH_Pads: boolean = true;
+	drillMarks: DrillMarksType;
+	skipNPTH_Pads: boolean;
+	diffing: boolean;
+	constructor(diffing = false, drillMarks = 1, skipNPTH_Pads = true) {
+		this.drillMarks = drillMarks;
+		this.skipNPTH_Pads = skipNPTH_Pads;
+		this.diffing = diffing
+	}
 }

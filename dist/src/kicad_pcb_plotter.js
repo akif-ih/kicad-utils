@@ -57,13 +57,72 @@ const DEFAULT_LAYER_COLORS = [
     kicad_common_1.Color.YELLOW,
     kicad_common_1.Color.DARKGRAY
 ];
+const LAYER_COLORS_DIFFING = [
+    0, new kicad_common_1.Color(33, 33, 33),
+    1, new kicad_common_1.Color(66, 66, 66),
+    2, new kicad_common_1.Color(54, 54, 54),
+    3, new kicad_common_1.Color(89, 89, 89),
+    4, new kicad_common_1.Color(47, 47, 47),
+    5, new kicad_common_1.Color(79, 77, 77),
+    6, new kicad_common_1.Color(105, 105, 105),
+    7, new kicad_common_1.Color(87, 87, 87),
+    8, new kicad_common_1.Color(71, 71, 71),
+    9, new kicad_common_1.Color(63, 63, 63),
+    10, new kicad_common_1.Color(39, 39, 39),
+    11, new kicad_common_1.Color(74, 74, 74),
+    12, new kicad_common_1.Color(81, 81, 81),
+    13, new kicad_common_1.Color(199, 199, 199),
+    14, new kicad_common_1.Color(207, 198, 198),
+    15, new kicad_common_1.Color(222, 222, 222),
+    16, new kicad_common_1.Color(171, 164, 164),
+    17, new kicad_common_1.Color(122, 118, 118),
+    18, new kicad_common_1.Color(74, 71, 71),
+    19, new kicad_common_1.Color(99, 96, 96),
+    20, new kicad_common_1.Color(195, 195, 195),
+    21, new kicad_common_1.Color(223, 223, 223),
+    22, new kicad_common_1.Color(231, 231, 231),
+    23, new kicad_common_1.Color(214, 214, 214),
+    24, new kicad_common_1.Color(225, 225, 225),
+    25, new kicad_common_1.Color(202, 202, 202),
+    26, new kicad_common_1.Color(233, 233, 233),
+    27, new kicad_common_1.Color(194, 194, 194),
+    28, new kicad_common_1.Color(223, 223, 223),
+    29, new kicad_common_1.Color(199, 199, 199),
+    30, new kicad_common_1.Color(212, 212, 212),
+    31, new kicad_common_1.Color(79, 79, 79),
+    32, new kicad_common_1.Color(176, 176, 176),
+    33, new kicad_common_1.Color(156, 156, 156),
+    34, new kicad_common_1.Color(97, 97, 97),
+    35, new kicad_common_1.Color(82, 82, 82),
+    36, new kicad_common_1.Color(138, 138, 138),
+    37, new kicad_common_1.Color(122, 122, 122),
+    38, new kicad_common_1.Color(59, 59, 59),
+    39, new kicad_common_1.Color(41, 41, 41),
+    40, new kicad_common_1.Color(112, 112, 112),
+    41, new kicad_common_1.Color(161, 161, 161),
+    42, new kicad_common_1.Color(148, 148, 148),
+    43, new kicad_common_1.Color(166, 166, 166),
+    44, new kicad_common_1.Color(0, 0, 0),
+    45, new kicad_common_1.Color(191, 191, 191),
+    46, new kicad_common_1.Color(128, 128, 128),
+    47, new kicad_common_1.Color(112, 112, 112),
+    48, new kicad_common_1.Color(177, 177, 177),
+    49, new kicad_common_1.Color(196, 196, 196)
+];
 // pcbnew/plot_board_layers.cpp
 // pcbnew/plot_brditems_plotter.cpp 
 class PCBPlotter {
-    constructor(plotter) {
+    constructor(plotter, plotOpts = new PCBPlotOptions) {
         this.plotter = plotter;
         this.layerMask = new kicad_pcb_1.LSET(kicad_pcb_1.PCB_LAYER_ID.F_Cu, kicad_pcb_1.PCB_LAYER_ID.B_Cu);
-        this.plotOpt = new PCBPlotOptions();
+        this.plotOpt = plotOpts;
+        this.layerColors = new Map();
+        for (let i = 0; i < LAYER_COLORS_DIFFING.length; i++) {
+            let layerId = LAYER_COLORS_DIFFING[i];
+            let color = (LAYER_COLORS_DIFFING[++i]);
+            this.layerColors.set(layerId, color);
+        }
+        console.log("test");
     }
     flashPadCircle(pos, dia, fill) {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
@@ -442,10 +501,18 @@ class PCBPlotter {
                 */
                 let color = kicad_common_1.Color.BLACK;
                 if (pad.layers.has(kicad_pcb_1.PCB_LAYER_ID.B_Cu)) {
-                    color = kicad_common_1.Color.GREEN;
+                    if (this.plotOpt.diffing && this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.B_Cu)) {
+                        color = this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.B_Cu);
+                    }
+                    else
+                        color = kicad_common_1.Color.GREEN;
                 }
-                if (pad.layers.has(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
-                    color = color.mix(kicad_common_1.Color.RED);
+                if (this.plotOpt.diffing && pad.layers.has(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
+                    if (this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
+                        color = this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.F_Cu);
+                    }
+                    else
+                        color = color.mix(kicad_common_1.Color.RED);
                 }
                 this.plotPad(board, pad, color, this.getPlotMode());
             }
@@ -492,7 +559,7 @@ class PCBPlotter {
     }
     plotSolderMaskLayer(board, minThickness) {
     }
-    plotBoardLayers(board, layerMask) {
+    plotBoardLayers(board, layerMask, color) {
         this.layerMask = layerMask;
         this.plotStandardLayer(board);
         this.plotSilkScreen(board);
@@ -731,12 +798,24 @@ class PCBPlotter {
         this.plotDrawSegment(board, draw);
     }
     getColor(layer) {
-        const color = DEFAULT_LAYER_COLORS[layer] || kicad_common_1.Color.WHITE;
-        if (color.is(kicad_common_1.Color.WHITE)) {
-            return kicad_common_1.Color.LIGHTGRAY;
+        if (this.plotOpt.diffing) {
+            if (this.layerColors.get(layer)) {
+                let color = this.layerColors.get(layer);
+                return color;
+            }
+            else {
+                const color = kicad_common_1.Color.LIGHTGRAY;
+                return color;
+            }
         }
         else {
-            return color;
+            const color = DEFAULT_LAYER_COLORS[layer] || kicad_common_1.Color.WHITE;
+            if (color.is(kicad_common_1.Color.WHITE)) {
+                return kicad_common_1.Color.LIGHTGRAY;
+            }
+            else {
+                return color;
+            }
         }
     }
     getPlotMode() {
@@ -751,9 +830,10 @@ var DrillMarksType;
     DrillMarksType[DrillMarksType["FULL_DRILL_SHAPE"] = 2] = "FULL_DRILL_SHAPE";
 })(DrillMarksType = exports.DrillMarksType || (exports.DrillMarksType = {}));
 class PCBPlotOptions {
-    constructor() {
-        this.drillMarks = DrillMarksType.SMALL_DRILL_SHAPE;
-        this.skipNPTH_Pads = true;
+    constructor(diffing = false, drillMarks = 1, skipNPTH_Pads = true) {
+        this.drillMarks = drillMarks;
+        this.skipNPTH_Pads = skipNPTH_Pads;
+        this.diffing = diffing;
     }
 }
 exports.PCBPlotOptions = PCBPlotOptions;
