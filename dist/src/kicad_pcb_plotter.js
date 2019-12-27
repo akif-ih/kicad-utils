@@ -124,16 +124,16 @@ class PCBPlotter {
         }
         console.log("test");
     }
-    flashPadCircle(pos, dia, fill) {
+    flashPadCircle(pos, dia, fill, elementMeta) {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
-            this.plotter.circle(pos, dia, fill, 0);
+            this.plotter.circle(pos, dia, fill, 0, elementMeta);
         }
         else {
             let lineWidth = DEFAULT_LINE_WIDTH;
             this.plotter.setCurrentLineWidth(lineWidth);
             if (lineWidth > dia - 2)
                 lineWidth = dia - 2;
-            this.plotter.circle(pos, dia - lineWidth, kicad_common_1.Fill.NO_FILL, lineWidth);
+            this.plotter.circle(pos, dia - lineWidth, kicad_common_1.Fill.NO_FILL, lineWidth, elementMeta);
         }
     }
     flashPadRect(pos, size, orientation, fill) {
@@ -238,7 +238,7 @@ class PCBPlotter {
         corners.push(corners[0]);
         this.plotter.polyline(corners, fill, lineWidth);
     }
-    flashPadOval(center, size, orientation, fill) {
+    flashPadOval(center, size, orientation, fill, elemMeta) {
         size = new kicad_common_1.Size(size.width, size.height);
         if (size.width > size.height) {
             [size.width, size.height] = [size.height, size.width];
@@ -250,13 +250,13 @@ class PCBPlotter {
             let p1 = new kicad_common_1.Point(0, delta / 2);
             kicad_common_1.RotatePoint(p0, orientation);
             kicad_common_1.RotatePoint(p1, orientation);
-            this.thickSegment(kicad_common_1.Point.add(center, p0), kicad_common_1.Point.add(center, p1), size.width, fill);
+            this.thickSegment(kicad_common_1.Point.add(center, p0), kicad_common_1.Point.add(center, p1), size.width, fill, elemMeta);
         }
         else {
-            this.sketchOval(center, size, orientation, DEFAULT_LINE_WIDTH);
+            this.sketchOval(center, size, orientation, DEFAULT_LINE_WIDTH, elemMeta);
         }
     }
-    sketchOval(pos, size, orientation, lineWidth) {
+    sketchOval(pos, size, orientation, lineWidth, elemMeta) {
         this.plotter.setCurrentLineWidth(lineWidth);
         size = kicad_common_1.Size.from(size);
         if (size.width > size.height) {
@@ -289,9 +289,9 @@ class PCBPlotter {
         c.x = 0;
         c.y = -deltaxy / 2;
         kicad_common_1.RotatePoint(c, orientation);
-        this.plotter.arc(kicad_common_1.Point.add(c, pos), orientation, orientation + 1800, radius, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+        this.plotter.arc(kicad_common_1.Point.add(c, pos), orientation, orientation + 1800, radius, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH, elemMeta);
     }
-    segmentAsOval(start, end, lineWidth, fill) {
+    segmentAsOval(start, end, lineWidth, fill, elemMeta) {
         const center = new kicad_common_1.Point((start.x + end.x) / 2, (start.y + end.y) / 2);
         const size = new kicad_common_1.Size(end.x - start.x, end.y - start.y);
         let orientation = 0;
@@ -306,28 +306,28 @@ class PCBPlotter {
         }
         size.width = kicad_common_1.EuclideanNorm(size) + lineWidth;
         size.height = lineWidth;
-        this.flashPadOval(center, size, orientation, fill);
+        this.flashPadOval(center, size, orientation, fill, elemMeta);
     }
-    thickSegment(start, end, lineWidth, fill) {
+    thickSegment(start, end, lineWidth, fill, elemMeta) {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
             this.plotter.setFill(kicad_common_1.Fill.NO_FILL);
             this.plotter.setCurrentLineWidth(lineWidth);
             this.plotter.moveTo(start);
-            this.plotter.finishTo(end);
+            this.plotter.finishTo(end, elemMeta);
         }
         else {
             this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-            this.segmentAsOval(start, end, lineWidth, fill);
+            this.segmentAsOval(start, end, lineWidth, fill, elemMeta);
         }
     }
-    thickArc(center, startAngle, endAngle, radius, lineWidth, fill) {
+    thickArc(center, startAngle, endAngle, radius, lineWidth, fill, elemMeta) {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
-            this.plotter.arc(center, startAngle, endAngle, radius, kicad_common_1.Fill.NO_FILL, lineWidth);
+            this.plotter.arc(center, startAngle, endAngle, radius, kicad_common_1.Fill.NO_FILL, lineWidth, elemMeta);
         }
         else {
             this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-            this.plotter.arc(center, startAngle, endAngle, radius - (lineWidth - DEFAULT_LINE_WIDTH) / 2, kicad_common_1.Fill.NO_FILL, lineWidth);
-            this.plotter.arc(center, startAngle, endAngle, radius + (lineWidth - DEFAULT_LINE_WIDTH) / 2, kicad_common_1.Fill.NO_FILL, lineWidth);
+            this.plotter.arc(center, startAngle, endAngle, radius - (lineWidth - DEFAULT_LINE_WIDTH) / 2, kicad_common_1.Fill.NO_FILL, lineWidth, elemMeta);
+            this.plotter.arc(center, startAngle, endAngle, radius + (lineWidth - DEFAULT_LINE_WIDTH) / 2, kicad_common_1.Fill.NO_FILL, lineWidth, elemMeta);
         }
     }
     thickRect(p1, p2, lineWidth, fill) {
@@ -346,20 +346,20 @@ class PCBPlotter {
             this.plotter.rect(offsetp1, offsetp2, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
         }
     }
-    thickCircle(pos, diameter, lineWidth, fill) {
+    thickCircle(pos, diameter, lineWidth, fill, elemMeta) {
         if (fill === kicad_common_1.Fill.FILLED_SHAPE) {
-            this.plotter.circle(pos, diameter, kicad_common_1.Fill.NO_FILL, lineWidth);
+            this.plotter.circle(pos, diameter, kicad_common_1.Fill.NO_FILL, lineWidth, elemMeta);
         }
         else {
             this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-            this.plotter.circle(pos, diameter - lineWidth + DEFAULT_LINE_WIDTH, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
-            this.plotter.circle(pos, diameter + lineWidth - DEFAULT_LINE_WIDTH, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH);
+            this.plotter.circle(pos, diameter - lineWidth + DEFAULT_LINE_WIDTH, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH, elemMeta);
+            this.plotter.circle(pos, diameter + lineWidth - DEFAULT_LINE_WIDTH, kicad_common_1.Fill.NO_FILL, DEFAULT_LINE_WIDTH, elemMeta);
         }
     }
-    thickCurve(start, end, C1, C2, lineWidth) {
+    thickCurve(start, end, C1, C2, lineWidth, elemMatch) {
         lineWidth = lineWidth ? lineWidth : DEFAULT_LINE_WIDTH;
         this.plotter.setCurrentLineWidth(lineWidth);
-        this.plotter.curve(start, end, C1, C2, lineWidth);
+        this.plotter.curve(start, end, C1, C2, lineWidth, elemMatch);
     }
     plotModule(mod) {
         for (let edge of mod.graphics) {
@@ -391,7 +391,8 @@ class PCBPlotter {
             pos = kicad_common_1.Point.add(pos, mod.pos);
         }
         const size = text.mirror ? -text.size : text.size;
-        this.plotter.text(pos, color, text.text, text.angle, size, text.hjustify, text.vjustify, text.lineWidth, text.italic, text.bold);
+        let elemMeta = new kicad_common_1.ElementMeta("module", mod.name, text.layer, "text");
+        this.plotter.text(pos, color, text.text, text.angle, size, text.hjustify, text.vjustify, text.lineWidth, text.italic, text.bold, false, elemMeta);
     }
     plotAllTextModule(mod) {
         if (this.layerMask.has(mod.reference.layer)) {
@@ -412,7 +413,7 @@ class PCBPlotter {
     }
     plotEdgeModule(edge, mod) {
         // console.log('plotEdgeModule', edge);
-        if (!edge.start || !edge.end)
+        if ((edge.start === undefined) || (edge.end === undefined))
             return;
         this.plotter.setColor(this.getColor(edge.layer));
         const lineWidth = edge.lineWidth;
@@ -439,17 +440,17 @@ class PCBPlotter {
             }
         }
         if (shape === kicad_pcb_1.Shape.SEGMENT) {
-            this.thickSegment(pos, end, lineWidth, this.getPlotMode());
+            this.thickSegment(pos, end, lineWidth, this.getPlotMode(), new kicad_common_1.ElementMeta("module", mod.name, edge.layer, "segment"));
         }
         else if (shape === kicad_pcb_1.Shape.ARC) {
             const radius = kicad_common_1.GetLineLength(pos, end);
             const startAngle = kicad_common_1.ArcTangente(end.y - pos.y, end.x - pos.x);
             const endAngle = startAngle + edge.angle;
-            this.thickArc(pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
+            this.thickArc(pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode(), new kicad_common_1.ElementMeta("module", mod.name, edge.layer, ""));
         }
         else if (shape === kicad_pcb_1.Shape.CIRCLE) {
             const radius = kicad_common_1.GetLineLength(pos, end);
-            this.thickCircle(pos, radius * 2, lineWidth, this.getPlotMode());
+            this.thickCircle(pos, radius * 2, lineWidth, this.getPlotMode(), new kicad_common_1.ElementMeta("module", mod.name, edge.layer, ""));
         }
         else if (shape === kicad_pcb_1.Shape.POLYGON) {
             const points = edge.polyPoints;
@@ -464,12 +465,13 @@ class PCBPlotter {
                 }
                 corners.push(p);
             }
-            this.plotter.polyline(corners, kicad_common_1.Fill.FILLED_SHAPE, lineWidth);
+            this.plotter.polyline(corners, kicad_common_1.Fill.FILLED_SHAPE, lineWidth, new kicad_common_1.ElementMeta("module", mod.name, edge.layer, ""));
         }
         else if (shape === kicad_pcb_1.Shape.CURVE) {
-            this.thickCurve(pos, end, C1, C2, edge.lineWidth);
+            this.thickCurve(pos, end, C1, C2, edge.lineWidth, new kicad_common_1.ElementMeta("module", mod.name, edge.layer, ""));
         }
         else if (shape === kicad_pcb_1.Shape.LAST) {
+            console.log();
             // Will implement this later.
         }
         else {
@@ -514,7 +516,7 @@ class PCBPlotter {
                     else
                         color = color.mix(kicad_common_1.Color.RED);
                 }
-                this.plotPad(board, pad, color, this.getPlotMode());
+                this.plotPad(board, pad, color, this.getPlotMode(), new kicad_common_1.ElementMeta("module", mod.name, mod.layer, "pad"));
             }
         }
         for (let via of board.vias) {
@@ -653,11 +655,11 @@ class PCBPlotter {
             }
         }
     }
-    plotPad(board, pad, color, fill) {
+    plotPad(board, pad, color, fill, elementMeta) {
         // console.log('plotPad', pad, color, fill);
         this.plotter.setColor(color);
         if (pad.shape === kicad_pcb_1.PadShape.CIRCLE) {
-            this.flashPadCircle(pad.pos, pad.size.width, fill);
+            this.flashPadCircle(pad.pos, pad.size.width, fill, elementMeta);
         }
         else if (pad.shape === kicad_pcb_1.PadShape.RECT) {
             this.flashPadRect(pad.pos, pad.size, pad.orientation, fill);

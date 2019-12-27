@@ -121,7 +121,7 @@ class StrokeFont {
             bottomLimit: ymin * size,
         };
     }
-    drawGlyph(plotter, p, glyph, size, italic) {
+    drawGlyph(plotter, p, glyph, size, italic, elemMeta) {
         for (let line of glyph.lines) {
             {
                 let x = line[0].x * size + p.x;
@@ -140,10 +140,10 @@ class StrokeFont {
                 }
                 plotter.lineTo(x, y);
             }
-            plotter.finishPen();
+            plotter.finishPen(elemMeta);
         }
     }
-    drawLineText(plotter, p, line, size, lineWidth, hjustify, vjustify, italic) {
+    drawLineText(plotter, p, line, size, lineWidth, hjustify, vjustify, italic, elemMeta) {
         let offset = lineWidth / 2;
         if (hjustify === kicad_common_1.TextHjustify.LEFT) {
             offset += 0;
@@ -158,11 +158,11 @@ class StrokeFont {
             const c = line.charCodeAt(i);
             const n = c - ' '.charCodeAt(0);
             const glyph = this.glyphs[n];
-            this.drawGlyph(plotter, { x: offset + p.x, y: p.y }, glyph, size, italic);
+            this.drawGlyph(plotter, { x: offset + p.x, y: p.y }, glyph, size, italic, elemMeta);
             offset += glyph.boundingBox.pos2.x * size;
         }
     }
-    drawText(plotter, p, text, size, lineWidth, angle, hjustify, vjustify, italic, bold) {
+    drawText(plotter, p, text, size, lineWidth, angle, hjustify, vjustify, italic, bold, elemMeta) {
         if (lineWidth === 0 && bold) {
             lineWidth = size / 5.0;
         }
@@ -187,7 +187,7 @@ class StrokeFont {
             offset = 0;
         }
         for (let line of lines) {
-            this.drawLineText(plotter, { x: 0, y: offset }, line, size, lineWidth, hjustify, vjustify, italic);
+            this.drawLineText(plotter, { x: 0, y: offset }, line, size, lineWidth, hjustify, vjustify, italic, elemMeta);
             offset += size * INTERLINE_PITCH_RATIO + lineWidth;
         }
         plotter.restore();

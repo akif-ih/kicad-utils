@@ -342,6 +342,7 @@ class Color {
         return new Color(this.r | c.r, this.g | c.g, this.b | c.b, this.a * c.a);
     }
 }
+exports.Color = Color;
 // common/colors.cpp 
 Color.BLACK = new Color(0, 0, 0);
 Color.DARKDARKGRAY = new Color(72, 72, 72);
@@ -373,7 +374,6 @@ Color.PURECYAN = new Color(0, 255, 255);
 Color.PURERED = new Color(255, 0, 0);
 Color.PUREMAGENTA = new Color(255, 0, 255);
 Color.PUREYELLOW = new Color(255, 255, 0);
-exports.Color = Color;
 class ColorDefinition extends Color {
     constructor(c, name, light) {
         super(c.r, c.g, c.b);
@@ -381,6 +381,7 @@ class ColorDefinition extends Color {
         this.light = light;
     }
 }
+exports.ColorDefinition = ColorDefinition;
 ColorDefinition.BLACK = new ColorDefinition(Color.BLACK, "Black", Color.DARKDARKGRAY);
 ColorDefinition.DARKDARKGRAY = new ColorDefinition(Color.DARKDARKGRAY, "Gray 1", Color.DARKGRAY);
 ColorDefinition.DARKGRAY = new ColorDefinition(Color.DARKGRAY, "Gray 2", Color.LIGHTGRAY);
@@ -411,7 +412,6 @@ ColorDefinition.PURECYAN = new ColorDefinition(Color.PURECYAN, "Cyan 4", Color.W
 ColorDefinition.PURERED = new ColorDefinition(Color.PURERED, "Red 4", Color.WHITE);
 ColorDefinition.PUREMAGENTA = new ColorDefinition(Color.PUREMAGENTA, "Magenta 4", Color.WHITE);
 ColorDefinition.PUREYELLOW = new ColorDefinition(Color.PUREYELLOW, "Yellow 4", Color.WHITE);
-exports.ColorDefinition = ColorDefinition;
 var Fill;
 (function (Fill) {
     Fill["NO_FILL"] = "N";
@@ -518,6 +518,7 @@ class PageInfo {
         }
     }
 }
+exports.PageInfo = PageInfo;
 PageInfo.A4 = new PageInfo("A4", false, MM2MIL(297), MM2MIL(210));
 PageInfo.A3 = new PageInfo("A3", false, MM2MIL(420), MM2MIL(297));
 PageInfo.A2 = new PageInfo("A2", false, MM2MIL(594), MM2MIL(420));
@@ -550,5 +551,16 @@ PageInfo.PAGE_TYPES = [
     PageInfo.USLegal,
     PageInfo.USLedger,
 ];
-exports.PageInfo = PageInfo;
+class ElementMeta {
+    constructor(type, name, layer, elemType) {
+        this.type = type;
+        this.layer = layer;
+        this.name = name;
+        this.elemType = elemType;
+    }
+    toString() {
+        return `${this.type}-${this.elemType}-${this.name}-${this.layer}`;
+    }
+}
+exports.ElementMeta = ElementMeta;
 //# sourceMappingURL=kicad_common.js.map

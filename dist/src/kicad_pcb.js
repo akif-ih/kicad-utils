@@ -816,9 +816,19 @@ class PCB {
             this.needLEFT();
             token = this.nextTok();
             this.expecting(token, kicad_pcb_token_1.Token.pts);
+            let tempTokenSave = new kicad_common_1.Point(0, 0);
+            let i = 0;
             while (!kicad_pcb_token_1.Token.RIGHT.is(token = this.nextTok())) {
-                segment.polyPoints.push(this.parseXY("polypoint"));
+                let point = this.parseXY("polypoint");
+                if (i === 0) {
+                    segment.start = point;
+                    i++;
+                }
+                else
+                    tempTokenSave = point;
+                segment.polyPoints.push(point);
             }
+            segment.end = tempTokenSave;
         }
         else {
             this.expecting(token, kicad_pcb_token_1.Token.fp_arc, kicad_pcb_token_1.Token.fp_circle, kicad_pcb_token_1.Token.fp_curve, kicad_pcb_token_1.Token.fp_line, kicad_pcb_token_1.Token.fp_poly);
@@ -1170,6 +1180,7 @@ class PCB {
         this.needSYMBOLorNUMBER();
         const name = this.curText();
         const fpid = LibId.parse(name);
+        mod.name = name;
         for (let token = this.nextTok(); !kicad_pcb_token_1.Token.RIGHT.is(token); token = this.nextTok()) {
             if (token.is(kicad_pcb_token_1.Token.LEFT)) {
                 token = this.nextTok();
@@ -1973,6 +1984,7 @@ class Module extends BoardItem {
         this.zoneConnection = 0;
         this.thermalWidth = 0;
         this.thermalGap = 0;
+        this.name = "";
         this.graphics = [];
         this.pads = [];
     }

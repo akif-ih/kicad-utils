@@ -899,9 +899,18 @@ export class PCB {
 			this.needLEFT();
 			token = this.nextTok();
 			this.expecting(token, Token.pts);
+			let tempTokenSave = new Point(0, 0)
+			let i = 0
 			while ( !Token.RIGHT.is(token = this.nextTok()) ) {
-				segment.polyPoints.push(this.parseXY("polypoint"));
+				let point = this.parseXY("polypoint")
+				if(i === 0){
+					segment.start = point; i++;
+				}
+				else
+					tempTokenSave = point
+				segment.polyPoints.push(point);
 			}
+			segment.end = tempTokenSave
 		} else {
 			this.expecting(token, Token.fp_arc, Token.fp_circle, Token.fp_curve, Token.fp_line, Token.fp_poly);
 		}
@@ -1286,7 +1295,7 @@ export class PCB {
 		this.needSYMBOLorNUMBER();
 		const name = this.curText();
 		const fpid = LibId.parse(name);
-
+		mod.name = name;
 		for (let token = this.nextTok(); !Token.RIGHT.is(token); token = this.nextTok()) {
 			if (token.is(Token.LEFT)) {
 				token = this.nextTok();
@@ -2308,7 +2317,7 @@ export class Module extends BoardItem {
 	zoneConnection: number = 0;
 	thermalWidth: number = 0;
 	thermalGap: number = 0;
-
+	name: string = "";
 	graphics: Array<BoardItem> = [];
 	reference: TextModule;
 	value: TextModule;

@@ -45,6 +45,7 @@ import {
 	RotatePoint,
 	RotatePointWithCenter,
 	Size,
+    ElementMeta
 } from "./kicad_common";
 
 import {
@@ -165,16 +166,16 @@ export class PCBPlotter {
 		console.log("test")
 	}
 
-	flashPadCircle(pos: Point, dia: number, fill: Fill) {
+	flashPadCircle(pos: Point, dia: number, fill: Fill, elementMeta?: ElementMeta) {
 		if (fill === Fill.FILLED_SHAPE) {
-			this.plotter.circle(pos, dia, fill, 0);
+			this.plotter.circle(pos, dia, fill, 0, elementMeta);
 		} else {
 			let lineWidth = DEFAULT_LINE_WIDTH;
 			this.plotter.setCurrentLineWidth(lineWidth);
 
 			if (lineWidth > dia -2) lineWidth = dia - 2;
 
-			this.plotter.circle(pos, dia - lineWidth, Fill.NO_FILL, lineWidth);
+			this.plotter.circle(pos, dia - lineWidth, Fill.NO_FILL, lineWidth, elementMeta);
 		}
 	}
 
@@ -291,7 +292,7 @@ export class PCBPlotter {
 		this.plotter.polyline(corners, fill, lineWidth);
 	}
 
-	flashPadOval(center: Point, size: Size, orientation: number, fill: Fill) {
+	flashPadOval(center: Point, size: Size, orientation: number, fill: Fill, elemMeta?:ElementMeta) {
 		size = new Size(size.width, size.height);
 
 		if (size.width > size.height) {
@@ -316,14 +317,15 @@ export class PCBPlotter {
 				Point.add(center, p0),
 				Point.add(center, p1),
 				size.width,
-				fill
+				fill,
+				elemMeta
 			);
 		} else {
-			this.sketchOval( center, size, orientation, DEFAULT_LINE_WIDTH );
+			this.sketchOval( center, size, orientation, DEFAULT_LINE_WIDTH, elemMeta );
 		}
 	}
 
-	sketchOval(pos: Point, size: Size, orientation: number, lineWidth: number) {
+	sketchOval(pos: Point, size: Size, orientation: number, lineWidth: number, elemMeta?: ElementMeta) {
 		this.plotter.setCurrentLineWidth(lineWidth);
 		size = Size.from(size);
 
@@ -368,11 +370,12 @@ export class PCBPlotter {
 		this.plotter.arc(
 			Point.add(c, pos),
 			orientation, orientation + 1800,
-			radius, Fill.NO_FILL, DEFAULT_LINE_WIDTH
+			radius, Fill.NO_FILL, DEFAULT_LINE_WIDTH,
+			elemMeta
 		);
 	}
 
-	segmentAsOval(start: Point, end: Point, lineWidth: number, fill: Fill) {
+	segmentAsOval(start: Point, end: Point, lineWidth: number, fill: Fill, elemMeta? : ElementMeta) {
 		const center = new Point(
 			(start.x + end.x) / 2,
 			(start.y + end.y) / 2
@@ -395,28 +398,28 @@ export class PCBPlotter {
 		size.width = EuclideanNorm(size) + lineWidth;
 		size.height = lineWidth;
 
-		this.flashPadOval( center, size, orientation, fill);
+		this.flashPadOval( center, size, orientation, fill, elemMeta);
 	}
 
-	thickSegment(start: Point, end: Point, lineWidth: number, fill: Fill) {
+	thickSegment(start: Point, end: Point, lineWidth: number, fill: Fill, elemMeta?: ElementMeta) {
 		if (fill === Fill.FILLED_SHAPE) {
 			this.plotter.setFill(Fill.NO_FILL);
 			this.plotter.setCurrentLineWidth(lineWidth);
 			this.plotter.moveTo(start);
-			this.plotter.finishTo(end);
+			this.plotter.finishTo(end, elemMeta);
 		} else {
 			this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-			this.segmentAsOval(start, end, lineWidth, fill);
+			this.segmentAsOval(start, end, lineWidth, fill, elemMeta);
 		}
 	}
 
-	thickArc(center: Point, startAngle: number, endAngle: number, radius: number, lineWidth: number, fill: Fill) {
+	thickArc(center: Point, startAngle: number, endAngle: number, radius: number, lineWidth: number, fill: Fill, elemMeta?: ElementMeta) {
 		if (fill === Fill.FILLED_SHAPE) {
-			this.plotter.arc(center, startAngle, endAngle, radius, Fill.NO_FILL, lineWidth);
+			this.plotter.arc(center, startAngle, endAngle, radius, Fill.NO_FILL, lineWidth, elemMeta);
 		} else {
 			this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-			this.plotter.arc(center, startAngle, endAngle, radius - (lineWidth - DEFAULT_LINE_WIDTH) / 2, Fill.NO_FILL, lineWidth);
-			this.plotter.arc(center, startAngle, endAngle, radius + (lineWidth - DEFAULT_LINE_WIDTH) / 2, Fill.NO_FILL, lineWidth);
+			this.plotter.arc(center, startAngle, endAngle, radius - (lineWidth - DEFAULT_LINE_WIDTH) / 2, Fill.NO_FILL, lineWidth, elemMeta);
+			this.plotter.arc(center, startAngle, endAngle, radius + (lineWidth - DEFAULT_LINE_WIDTH) / 2, Fill.NO_FILL, lineWidth, elemMeta);
 		}
 	}
 
@@ -442,20 +445,20 @@ export class PCBPlotter {
 		}
 	}
 
-	thickCircle(pos: Point, diameter: number, lineWidth: number, fill: Fill) {
+	thickCircle(pos: Point, diameter: number, lineWidth: number, fill: Fill, elemMeta? : ElementMeta) {
 		if (fill === Fill.FILLED_SHAPE) {
-			this.plotter.circle(pos, diameter, Fill.NO_FILL, lineWidth);
+			this.plotter.circle(pos, diameter, Fill.NO_FILL, lineWidth, elemMeta);
 		} else {
 			this.plotter.setCurrentLineWidth(DEFAULT_LINE_WIDTH);
-			this.plotter.circle( pos, diameter - lineWidth + DEFAULT_LINE_WIDTH, Fill.NO_FILL, DEFAULT_LINE_WIDTH );
-			this.plotter.circle( pos, diameter + lineWidth - DEFAULT_LINE_WIDTH, Fill.NO_FILL, DEFAULT_LINE_WIDTH );
+			this.plotter.circle( pos, diameter - lineWidth + DEFAULT_LINE_WIDTH, Fill.NO_FILL, DEFAULT_LINE_WIDTH, elemMeta );
+			this.plotter.circle( pos, diameter + lineWidth - DEFAULT_LINE_WIDTH, Fill.NO_FILL, DEFAULT_LINE_WIDTH, elemMeta );
 		}
 	}
 
-	thickCurve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number) {
+	thickCurve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number, elemMatch?: ElementMeta) {
 		lineWidth = lineWidth ? lineWidth : DEFAULT_LINE_WIDTH
 		this.plotter.setCurrentLineWidth(lineWidth)
-		this.plotter.curve(start, end, C1, C2, lineWidth)
+		this.plotter.curve(start, end, C1, C2, lineWidth, elemMatch)
 	}
 
 	plotModule(mod: Module) {
@@ -492,6 +495,7 @@ export class PCBPlotter {
 		}
 
 		const size = text.mirror ? -text.size : text.size;
+		let elemMeta = new ElementMeta("module", mod.name, text.layer, "text")
 
 		this.plotter.text(
 			pos,
@@ -503,7 +507,9 @@ export class PCBPlotter {
 			text.vjustify,
 			text.lineWidth,
 			text.italic,
-			text.bold
+			text.bold,
+			false,
+			elemMeta
 		);
 	}
 
@@ -525,7 +531,7 @@ export class PCBPlotter {
 
 	plotEdgeModule(edge: EdgeModule, mod: Module) {
 		// console.log('plotEdgeModule', edge);
-		if(!edge.start || !edge.end)
+		if((edge.start === undefined) || (edge.end === undefined))
 			return
 		this.plotter.setColor(this.getColor(edge.layer));
 
@@ -554,17 +560,17 @@ export class PCBPlotter {
 		}
 
 		if (shape === Shape.SEGMENT) {
-			this.thickSegment(pos, end, lineWidth, this.getPlotMode());
+			this.thickSegment(pos, end, lineWidth, this.getPlotMode(), new ElementMeta("module", mod.name, edge.layer, "segment"));
 		} else
 		if (shape === Shape.ARC) {
 			const radius = GetLineLength(pos, end);
 			const startAngle  = ArcTangente( end.y - pos.y, end.x - pos.x );
 			const endAngle = startAngle + edge.angle;
-			this.thickArc( pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode());
+			this.thickArc( pos, endAngle, startAngle, radius, lineWidth, this.getPlotMode(), new ElementMeta("module", mod.name, edge.layer, ""));
 		} else
 		if (shape === Shape.CIRCLE) {
 			const radius = GetLineLength(pos, end);
-			this.thickCircle(pos, radius * 2, lineWidth, this.getPlotMode());
+			this.thickCircle(pos, radius * 2, lineWidth, this.getPlotMode(), new ElementMeta("module", mod.name, edge.layer, ""));
 		} else
 		if (shape === Shape.POLYGON) {
 			const points = edge.polyPoints;
@@ -579,12 +585,13 @@ export class PCBPlotter {
 				}
 				corners.push(p);
 			}
-			this.plotter.polyline(corners, Fill.FILLED_SHAPE, lineWidth);
+			this.plotter.polyline(corners, Fill.FILLED_SHAPE, lineWidth, new ElementMeta("module", mod.name, edge.layer, ""));
 		} else
 		if(shape === Shape.CURVE) {
-			this.thickCurve(pos, end, C1, C2, edge.lineWidth)
+			this.thickCurve(pos, end, C1, C2, edge.lineWidth, new ElementMeta("module", mod.name, edge.layer, ""))
 		}else
 		if(shape === Shape.LAST){
+			console.log()
 			// Will implement this later.
 		}
 
@@ -639,7 +646,7 @@ export class PCBPlotter {
 
 				}
 
-				this.plotPad(board, pad, color, this.getPlotMode());
+				this.plotPad(board, pad, color, this.getPlotMode(), new ElementMeta("module", mod.name, mod.layer, "pad" ));
 			}
 		}
 
@@ -791,11 +798,11 @@ export class PCBPlotter {
 		}
 	}
 
-	plotPad(board: Board, pad: Pad, color: Color, fill: Fill) {
+	plotPad(board: Board, pad: Pad, color: Color, fill: Fill, elementMeta?: ElementMeta) {
 		// console.log('plotPad', pad, color, fill);
 		this.plotter.setColor(color);
 		if (pad.shape === PadShape.CIRCLE) {
-			this.flashPadCircle(pad.pos, pad.size.width, fill);
+			this.flashPadCircle(pad.pos, pad.size.width, fill, elementMeta);
 		} else
 		if (pad.shape === PadShape.RECT) {
 			this.flashPadRect(pad.pos, pad.size, pad.orientation, fill);

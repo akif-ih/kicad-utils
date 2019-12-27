@@ -655,3 +655,21 @@ export class PageInfo {
 		}
 	}
 }
+
+export class ElementMeta {
+	type: string;
+	layer: number;
+	name: string;
+	elemType: string;
+
+	constructor(type: string, name: string, layer: number, elemType: string) {
+		this.type = type;
+		this.layer = layer;
+		this.name = name;
+		this.elemType = elemType
+	}
+
+	toString() {
+		return `${this.type}-${this.elemType}-${this.name}-${this.layer}`
+	}
+}

@@ -46,7 +46,7 @@ import {
 	Net,
 	Color,
 	ColorDefinition,
-	PageInfo,
+	PageInfo, ElementMeta,
 } from "./kicad_common";
 
 import {
@@ -79,11 +79,11 @@ export abstract class Plotter {
 		this.font = StrokeFont.instance;
 	}
 
-	abstract circle(p: Point, dia: number, fill: Fill, width: number): void;
-	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void;
-	abstract curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number): void;
-	abstract penTo(p: Point, s: "U"|"D"|"Z"): void;
-	abstract penToLine(p: Point, s: "U"|"D"|"Z"): void;
+	abstract circle(p: Point, dia: number, fill: Fill, width: number, elemMeta?: ElementMeta): void;
+	abstract arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number, elemMeta? : ElementMeta): void;
+	abstract curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number, elemMatch?: ElementMeta): void;
+	abstract penTo(p: Point, s: "U"|"D"|"Z", elemMeta?: ElementMeta): void;
+	abstract penToLine(p: Point, s: "U"|"D"|"Z", elemMeta?: ElementMeta): void;
 	abstract image(p: Point, scale: number, originalWidth:number, originalHeight:number, data: Uint8Array): void;
 
 	abstract setCurrentLineWidth(w: number): void;
@@ -106,14 +106,14 @@ export abstract class Plotter {
 		this.finishTo(p1.x, p1.y);
 	}
 
-	polyline(points: Array<Point>, fill: Fill, width: number) {
+	polyline(points: Array<Point>, fill: Fill, width: number, elemMeta?: ElementMeta) {
 		this.setCurrentLineWidth(width);
 		this.setFill(fill);
 		this.moveTo(points[0]);
 		for (var i = 1, len = points.length; i < len; i++) {
 			this.lineTo(points[i]);
 		}
-		this.finishPen();
+		this.finishPen(elemMeta);
 	}
 
 	text(
@@ -128,6 +128,7 @@ export abstract class Plotter {
 		italic: boolean,
 		bold: boolean,
 		multiline?: boolean,
+		elemMeta?: ElementMeta
 	): void {
 		this.setColor(color);
 		this.setFill(Fill.NO_FILL);
@@ -141,7 +142,8 @@ export abstract class Plotter {
 			hjustfy,
 			vjustify,
 			italic,
-			bold
+			bold,
+			elemMeta
 		);
 	}
 
@@ -184,6 +186,7 @@ export abstract class Plotter {
 		}
 	}
 
+	// @ts-ignore
 	lineTo(p: Point): void;
 	lineTo(x: number, y: number): void;
 	lineTo(x: any, y?: number): void {
@@ -194,9 +197,10 @@ export abstract class Plotter {
 		}
 	}
 
-	finishTo(p: Point): void;
-	finishTo(x: number, y: number): void;
-	finishTo(x: any, y?: number): void {
+	// @ts-ignore
+	finishTo(p: Point, elemMeta?: ElementMeta): void;
+	finishTo(x: number, y: number, elemMeta?: ElementMeta): void;
+	finishTo(x: any, y?: number, elemMeta?: ElementMeta): void {
 		if (typeof y === 'number') {
 			this.penTo({x: x, y: y}, "D");
 			this.penTo({x: x, y: y}, "Z");
@@ -240,8 +244,8 @@ export abstract class Plotter {
 	}
 
 
-	finishPen(): void {
-		this.penTo({x: 0, y: 0}, "Z");
+	finishPen(elemMeta?: ElementMeta): void {
+		this.penTo({x: 0, y: 0}, "Z", elemMeta);
 	}
 
 	plotPageInfo(page: PageInfo) {
@@ -369,7 +373,7 @@ export class CanvasPlotter extends Plotter {
 	 * D = Pen is down
 	 * Z = Pen is outof canvas
 	 */
-	penTo(p: Point, s: "U"|"D"|"Z"): void {
+	penTo(p: Point, s: "U"|"D"|"Z", elemMeta?: ElementMeta): void {
 		p = this.transform.transformCoordinate(p);
 		if (s === "Z") {
 			if (this.fill === Fill.FILLED_SHAPE) {
@@ -447,7 +451,7 @@ export class SVGPlotter extends Plotter {
 		this.color = Color.BLACK;
 	}
 
-	circle(p: Point, dia: number, fill: Fill, width: number): void {
+	circle(p: Point, dia: number, fill: Fill, width: number, elemMeta?: ElementMeta): void {
 		this.setCurrentLineWidth(width);
 		this.setFill(fill);
 
@@ -457,13 +461,13 @@ export class SVGPlotter extends Plotter {
 		const lineWidth = this.transform.transformScalar(this.lineWidth);
 		this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia/2}" `;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}"></circle>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill></circle>\n`;
 		} else {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}"></circle>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill></circle>\n`;
 		}
 	}
 
-	arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number): void {
+	arc(p: Point, startAngle: number, endAngle: number, radius: number, fill: Fill, width: number, elemMeta?: ElementMeta): void {
 		if (radius <= 0) return;
 		if (startAngle > endAngle) {
 			[startAngle, endAngle] = [endAngle, startAngle];
@@ -499,13 +503,13 @@ export class SVGPlotter extends Plotter {
 		const x = this.xmlTag;
 		this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}"></path>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill></path>\n`;
 		} else {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}"></path>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill></path>\n`;
 		}
 	}
 
-	curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number){
+	curve(start: Point, end: Point, C1: Point, C2: Point, lineWidth: number, elemMeta? : ElementMeta){
 		start = this.transform.transformCoordinate(start)
 		end = this.transform.transformCoordinate(end)
 		C1 = this.transform.transformCoordinate(C1)
@@ -515,10 +519,10 @@ export class SVGPlotter extends Plotter {
 		const x = this.xmlTag;
 		this.output += this.xmlTag `<path d="M${start.x},${start.y} C${C1.x},${C1.y} ${C2.x},${C2.y} ${end.x},${end.y}"`;
 		if (this.fill === Fill.NO_FILL) {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}"></path>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill></path>\n`;
 		}
 		else {
-			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}"></path>\n`;
+			this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill></path>\n`;
 		}
 	}
 
@@ -534,9 +538,10 @@ export class SVGPlotter extends Plotter {
 		italic: boolean,
 		bold: boolean,
 		multiline?: boolean,
+		elemMeta?:ElementMeta
 	): void {
 		this.output += this.xmlTag `<!-- draw text ${text} -->`;
-		super.text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline);
+		super.text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline, elemMeta);
 	}
 
 	/*
@@ -603,16 +608,16 @@ export class SVGPlotter extends Plotter {
 	 * D = Pen is down
 	 * Z = Pen is outof canvas
 	 */
-	penTo(p: Point, s: "U"|"D"|"Z"): void {
+	penTo(p: Point, s: "U"|"D"|"Z", elemMeta?: ElementMeta): void {
 		const x = this.xmlTag;
 		p = this.transform.transformCoordinate(p);
 		const lineWidth = this.transform.transformScalar(this.lineWidth);
 		if (s === "Z") {
 			if (this.penState !== "Z") {
 				if (this.fill === Fill.NO_FILL) {
-					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}"></path>\n`;
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString(): "no-info-provided"}-fill></path>\n`;
 				} else {
-					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}"></path>\n`;
+					this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class=${elemMeta ? elemMeta.toString(): "no-info-provided"}-nofill></path>\n`;
 				}
 			} else {
 				throw "invalid pen state Z -> Z";
