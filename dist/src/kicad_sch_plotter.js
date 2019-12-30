@@ -36,7 +36,7 @@ const PIN_TXT_MARGIN = 4;
 const DEFAULT_LINE_WIDTH = 6;
 const DEFAULT_LINE_WIDTH_BUS = 12;
 const DEFAULT_SIZE_TEXT = 60;
-const SCH_COLORS = {
+let SCH_COLORS = {
     LAYER_WIRE: kicad_common_1.Color.GREEN,
     LAYER_BUS: kicad_common_1.Color.BLUE,
     LAYER_JUNCTION: kicad_common_1.Color.GREEN,
@@ -63,6 +63,34 @@ const SCH_COLORS = {
     LAYER_SCHEMATIC_GRID: kicad_common_1.Color.DARKGRAY,
     LAYER_SCHEMATIC_BACKGROUND: kicad_common_1.Color.WHITE,
     LAYER_BRIGHTENED: kicad_common_1.Color.PUREMAGENTA,
+};
+const SCH_COLORS_DIFFING = {
+    LAYER_WIRE: new kicad_common_1.Color(87, 87, 87),
+    LAYER_BUS: new kicad_common_1.Color(66, 66, 66),
+    LAYER_JUNCTION: new kicad_common_1.Color(48, 48, 48),
+    LAYER_LOCLABEL: new kicad_common_1.Color(145, 145, 145),
+    LAYER_HIERLABEL: new kicad_common_1.Color(156, 156, 156),
+    LAYER_GLOBLABEL: new kicad_common_1.Color(161, 161, 161),
+    LAYER_PINNUM: new kicad_common_1.Color(173, 173, 173),
+    LAYER_PINNAM: new kicad_common_1.Color(145, 145, 145),
+    LAYER_FIELDS: new kicad_common_1.Color(168, 168, 168),
+    LAYER_REFERENCEPART: new kicad_common_1.Color(84, 184, 184),
+    LAYER_VALUEPART: new kicad_common_1.Color(163, 163, 163),
+    LAYER_NOTES: new kicad_common_1.Color(199, 199, 199),
+    LAYER_DEVICE: new kicad_common_1.Color(204, 204, 204),
+    LAYER_DEVICE_BACKGROUND: new kicad_common_1.Color(227, 227, 227),
+    LAYER_NETNAM: new kicad_common_1.Color(212, 212, 212),
+    LAYER_PIN: new kicad_common_1.Color(145, 145, 145),
+    LAYER_SHEET: new kicad_common_1.Color(66, 66, 66),
+    LAYER_SHEETFILENAME: new kicad_common_1.Color(84, 84, 84),
+    LAYER_SHEETNAME: new kicad_common_1.Color(77, 77, 77),
+    LAYER_SHEETLABEL: new kicad_common_1.Color(99, 99, 99),
+    LAYER_NOCONNECT: new kicad_common_1.Color(168, 168, 168),
+    LAYER_ERC_WARN: new kicad_common_1.Color(191, 191, 191),
+    LAYER_ERC_ERR: new kicad_common_1.Color(158, 158, 158),
+    LAYER_SCHEMATIC_GRID: new kicad_common_1.Color(209, 209, 209),
+    LAYER_SCHEMATIC_BACKGROUND: new kicad_common_1.Color(255, 255, 255),
+    LAYER_BRIGHTENED: new kicad_common_1.Color(68, 68, 68)
 };
 const TEMPLATE_SHAPES = {
     [kicad_common_1.Net.INPUT]: {
@@ -97,9 +125,14 @@ const TEMPLATE_SHAPES = {
     }
 };
 class SchPlotter {
-    constructor(plotter) {
+    constructor(plotter, diffing = false) {
         this.plotter = plotter;
         this.errors = [];
+        this.diffing = false;
+        if (diffing === true) {
+            this.diffing = true;
+            SCH_COLORS = SCH_COLORS_DIFFING;
+        }
     }
     /**
      * kicad-js implements plot methods to plotter instead of each library items for simplify parsing dependencies.

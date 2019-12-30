@@ -86,7 +86,7 @@ const DEFAULT_LINE_WIDTH = 6;
 const DEFAULT_LINE_WIDTH_BUS = 12;
 const DEFAULT_SIZE_TEXT =  60;
 
-const SCH_COLORS = {
+let SCH_COLORS = {
 	LAYER_WIRE:                 Color.GREEN,
 	LAYER_BUS:                  Color.BLUE,
 	LAYER_JUNCTION:             Color.GREEN,
@@ -115,6 +115,35 @@ const SCH_COLORS = {
 	LAYER_BRIGHTENED:           Color.PUREMAGENTA,
 };
 
+const SCH_COLORS_DIFFING = {
+	LAYER_WIRE:                         new Color(87, 87, 87),
+	LAYER_BUS:                           new Color(66, 66, 66),
+	LAYER_JUNCTION:                      new Color(48, 48, 48),
+	LAYER_LOCLABEL:                     new Color(145, 145, 145),
+	LAYER_HIERLABEL:                     new Color(156, 156, 156),
+	LAYER_GLOBLABEL:                     new Color(161, 161, 161),
+	LAYER_PINNUM:                        new Color(173, 173, 173),
+	LAYER_PINNAM:                        new Color(145, 145, 145),
+	LAYER_FIELDS:                       new Color(168, 168, 168),
+	LAYER_REFERENCEPART:             new Color(84, 184, 184),
+	LAYER_VALUEPART:                     new Color(163, 163, 163),
+	LAYER_NOTES:                        new Color(199, 199, 199),
+	LAYER_DEVICE:                        new Color(204, 204, 204),
+	LAYER_DEVICE_BACKGROUND:    new Color(227, 227, 227),
+	LAYER_NETNAM:                        new Color(212, 212, 212),
+	LAYER_PIN:                               new Color(145, 145, 145),
+	LAYER_SHEET:                         new Color(66, 66, 66),
+	LAYER_SHEETFILENAME:             new Color(84, 84, 84),
+	LAYER_SHEETNAME:                 new Color(77, 77, 77),
+	LAYER_SHEETLABEL:                new Color(99, 99, 99),
+	LAYER_NOCONNECT:                new Color(168, 168, 168),
+	LAYER_ERC_WARN:                      new Color(191, 191, 191),
+	LAYER_ERC_ERR:                       new Color(158, 158, 158),
+	LAYER_SCHEMATIC_GRID:           new Color(209, 209, 209),
+	LAYER_SCHEMATIC_BACKGROUND:  new Color(255, 255, 255),
+	LAYER_BRIGHTENED:                new Color(68, 68, 68)
+
+}
 const TEMPLATE_SHAPES = {
 	[Net.INPUT]: {
 		[TextOrientationType.HORIZ_LEFT]: [ 6, 0, 0, -1, -1, -2, -1, -2, 1, -1, 1, 0, 0 ],
@@ -150,8 +179,12 @@ const TEMPLATE_SHAPES = {
 
 export class SchPlotter {
 	errors: Array<string>  = [];
-
-	constructor(public plotter: Plotter) {
+	diffing: Boolean = false;
+	constructor(public plotter: Plotter, diffing: Boolean = false) {
+		if( diffing === true) {
+			this.diffing = true;
+			SCH_COLORS = SCH_COLORS_DIFFING;
+		}
 	}
 
 	/**
@@ -290,7 +323,7 @@ export class SchPlotter {
 			draw.lineWidth || DEFAULT_LINE_WIDTH
 		);
 	}
-	
+
 	plotDrawText(draw: DrawText, component: LibComponent, transform: Transform ):void {
 		const pos = transform.transformCoordinate(draw.pos);
 		this.plotter.text(
@@ -526,7 +559,7 @@ export class SchPlotter {
 	plotDrawPinSymbol(draw: DrawPin, component: LibComponent, transform: Transform): void {
 		const pos = transform.transformCoordinate(draw.pos);
 		const orientation = this.pinDrawOrientation(draw, transform);
-		
+
 		let x1 = pos.x, y1 = pos.y;
 		let mapX1 = 0, mapY1 = 0;
 
