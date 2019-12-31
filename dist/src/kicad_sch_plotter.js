@@ -74,7 +74,7 @@ const SCH_COLORS_DIFFING = {
     LAYER_PINNUM: new kicad_common_1.Color(173, 173, 173),
     LAYER_PINNAM: new kicad_common_1.Color(145, 145, 145),
     LAYER_FIELDS: new kicad_common_1.Color(168, 168, 168),
-    LAYER_REFERENCEPART: new kicad_common_1.Color(84, 184, 184),
+    LAYER_REFERENCEPART: new kicad_common_1.Color(184, 184, 184),
     LAYER_VALUEPART: new kicad_common_1.Color(163, 163, 163),
     LAYER_NOTES: new kicad_common_1.Color(199, 199, 199),
     LAYER_DEVICE: new kicad_common_1.Color(204, 204, 204),

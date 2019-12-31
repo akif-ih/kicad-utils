@@ -125,7 +125,7 @@ const SCH_COLORS_DIFFING = {
 	LAYER_PINNUM:                        new Color(173, 173, 173),
 	LAYER_PINNAM:                        new Color(145, 145, 145),
 	LAYER_FIELDS:                       new Color(168, 168, 168),
-	LAYER_REFERENCEPART:             new Color(84, 184, 184),
+	LAYER_REFERENCEPART:             new Color(184, 184, 184),
 	LAYER_VALUEPART:                     new Color(163, 163, 163),
 	LAYER_NOTES:                        new Color(199, 199, 199),
 	LAYER_DEVICE:                        new Color(204, 204, 204),
