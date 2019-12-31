@@ -637,8 +637,8 @@ export class PCBPlotter {
 						color = Color.GREEN;
 
 				}
-				if (this.plotOpt.diffing && pad.layers.has(PCB_LAYER_ID.F_Cu)) {
-					if (this.layerColors.get(PCB_LAYER_ID.F_Cu)) {
+				if (pad.layers.has(PCB_LAYER_ID.F_Cu)) {
+					if (this.plotOpt.diffing && this.layerColors.get(PCB_LAYER_ID.F_Cu)) {
 						color = <Color>this.layerColors.get(PCB_LAYER_ID.F_Cu)
 					}
 					else

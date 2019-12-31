@@ -509,8 +509,8 @@ class PCBPlotter {
                     else
                         color = kicad_common_1.Color.GREEN;
                 }
-                if (this.plotOpt.diffing && pad.layers.has(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
-                    if (this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
+                if (pad.layers.has(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
+                    if (this.plotOpt.diffing && this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.F_Cu)) {
                         color = this.layerColors.get(kicad_pcb_1.PCB_LAYER_ID.F_Cu);
                     }
                     else
