@@ -852,7 +852,7 @@ export class PCBPlotter {
 		}
 
 		for (let via of board.vias) {
-			this.plotOneDrillMark(PadDrillShape.CIRCLE, via.start, new Size(via.drill, 0), new Size(via.width, 0), 0, 0);
+			this.plotOneDrillMark(PadDrillShape.CIRCLE, via.start, new Size(via.drill ? via.drill : 0, 0), new Size(via.width, 0), 0, 0);
 		}
 
 		for (let mod of board.modules) {

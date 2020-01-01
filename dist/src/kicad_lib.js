@@ -48,14 +48,14 @@ class ParseError extends Error {
 }
 exports.ParseError = ParseError;
 class Library {
+    constructor() {
+        this.components = [];
+    }
     static load(content) {
         const lines = content.split(/\r?\n/);
         const lib = new this();
         lib.parse(lines);
         return lib;
-    }
-    constructor() {
-        this.components = [];
     }
     parse(lines) {
         const totalLines = lines.length;

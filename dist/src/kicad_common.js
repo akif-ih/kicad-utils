@@ -326,7 +326,7 @@ class Rect {
 exports.Rect = Rect;
 class Color {
     // max 255 int
-    constructor(r, g, b, a = 1.0) {
+    constructor(r, g, b, a = 0.8) {
         this.r = r;
         this.g = g;
         this.b = b;

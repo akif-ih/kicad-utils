@@ -446,7 +446,7 @@ export class Color {
 	static PUREYELLOW =    new Color(255  , 255 , 0      );
 
 	// max 255 int
-	constructor(r: number, g: number, b:number, a:number=1.0) {
+	constructor(r: number, g: number, b:number, a:number=0.8) {
 		this.r = r;
 		this.g = g;
 		this.b = b;

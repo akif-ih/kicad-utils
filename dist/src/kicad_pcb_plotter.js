@@ -698,7 +698,7 @@ class PCBPlotter {
             this.plotter.setColor(kicad_common_1.Color.BLACK);
         }
         for (let via of board.vias) {
-            this.plotOneDrillMark(kicad_pcb_1.PadDrillShape.CIRCLE, via.start, new kicad_common_1.Size(via.drill, 0), new kicad_common_1.Size(via.width, 0), 0, 0);
+            this.plotOneDrillMark(kicad_pcb_1.PadDrillShape.CIRCLE, via.start, new kicad_common_1.Size(via.drill ? via.drill : 0, 0), new kicad_common_1.Size(via.width, 0), 0, 0);
         }
         for (let mod of board.modules) {
             for (let pad of mod.pads) {
