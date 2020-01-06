@@ -330,10 +330,10 @@ class SVGPlotter extends Plotter {
         const lineWidth = this.transform.transformScalar(this.lineWidth);
         this.output += this.xmlTag `<circle cx="${p.x}" cy="${p.y}" r="${dia / 2}" `;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></circle>\n`;
+            this.output += this.xmlTag ` style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></circle>\n`;
         }
         else {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></circle>\n`;
+            this.output += this.xmlTag ` style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></circle>\n`;
         }
     }
     arc(p, startAngle, endAngle, radius, fill, width, elemMeta) {
@@ -368,10 +368,10 @@ class SVGPlotter extends Plotter {
         const x = this.xmlTag;
         this.output += this.xmlTag `<path d="M${start.x} ${start.y} A${radius} ${radius} 0.0 ${isLargeArc ? 1 : 0} ${isSweep ? 1 : 0} ${end.x} ${end.y}"`;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></path>\n`;
+            this.output += this.xmlTag ` style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></path>\n`;
         }
         else {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></path>\n`;
+            this.output += this.xmlTag ` style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></path>\n`;
         }
     }
     curve(start, end, C1, C2, lineWidth, elemMeta) {
@@ -383,10 +383,10 @@ class SVGPlotter extends Plotter {
         const x = this.xmlTag;
         this.output += this.xmlTag `<path d="M${start.x},${start.y} C${C1.x},${C1.y} ${C2.x},${C2.y} ${end.x},${end.y}"`;
         if (this.fill === kicad_common_1.Fill.NO_FILL) {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></path>\n`;
+            this.output += this.xmlTag ` style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></path>\n`;
         }
         else {
-            this.output += this.xmlTag ` style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></path>\n`;
+            this.output += this.xmlTag ` style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></path>\n`;
         }
     }
     text(p, color, text, orientation, size, hjustfy, vjustify, width, italic, bold, multiline, elemMeta) {
@@ -463,10 +463,10 @@ class SVGPlotter extends Plotter {
         if (s === "Z") {
             if (this.penState !== "Z") {
                 if (this.fill === kicad_common_1.Fill.NO_FILL) {
-                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></path>\n`;
+                    this.output += this.xmlTag `" style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: none; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-nofill"></path>\n`;
                 }
                 else {
-                    this.output += this.xmlTag `" style="stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></path>\n`;
+                    this.output += this.xmlTag `" style="z-index: ${elemMeta ? elemMeta.zIndex : 'auto'};stroke: ${this.color.toCSSColor()}; fill: ${this.color.toCSSColor()}; stroke-width: ${lineWidth}" class="${elemMeta ? elemMeta.toString() : "no-info-provided"}-fill"></path>\n`;
                 }
             }
             else {

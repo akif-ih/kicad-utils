@@ -557,9 +557,10 @@ class ElementMeta {
         this.layer = layer;
         this.name = name;
         this.elemType = elemType;
+        this.zIndex = 100 - layer;
     }
     toString() {
-        return `${this.type}-${this.elemType}-${this.name}-${this.layer}`;
+        return `layer${this.layer}  ${this.type}-${this.elemType}-${this.name}-${this.layer}`;
     }
 }
 exports.ElementMeta = ElementMeta;

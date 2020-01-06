@@ -661,15 +661,17 @@ export class ElementMeta {
 	layer: number;
 	name: string;
 	elemType: string;
+	zIndex: number;
 
 	constructor(type: string, name: string, layer: number, elemType: string) {
 		this.type = type;
 		this.layer = layer;
 		this.name = name;
-		this.elemType = elemType
+		this.elemType = elemType;
+		this.zIndex = 100 - layer;
 	}
 
 	toString() {
-		return `${this.type}-${this.elemType}-${this.name}-${this.layer}`
+		return `layer${this.layer}  ${this.type}-${this.elemType}-${this.name}-${this.layer}`
 	}
 }
