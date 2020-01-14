@@ -138,7 +138,8 @@ class PCB {
         // lexer
         for (let i = 0, len = lines.length; i < len; i++) {
             // remove comment
-            const line = lines[i].replace(/#.*$/, '');
+            //const line = lines[i].replace(/#.*$/, '');
+            const line = lines[i];
             tokens.push(...line.split(/([()]|"(?:\\"|[^"])*")|\s+/).filter((t) => !!t).map((t) => new kicad_pcb_token_1.Token(t, i + 1)));
         }
         const pcb = new this();
